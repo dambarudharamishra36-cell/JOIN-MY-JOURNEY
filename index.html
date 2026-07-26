@@ -555,33 +555,6 @@
     </form>
   </div>
 </section>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>  <script>  
-emailjs.init("fEWbl7dUAE1nbMrD5");  
-  
-function approveUser() {  
-  const email = prompt("User Email:");  
-  const name = prompt("User Name:");  
-  
-  emailjs.send("service_wurb215", "template_qli2eve", {  
-    user_name: name,  
-    user_email: email  
-  });  
-  
-  alert("✅ Approved Email Sent!");  
-}  
-  
-function rejectUser() {  
-  const email = prompt("User Email:");  
-  const name = prompt("User Name:");  
-  
-  emailjs.send("service_wurb215", "template_armku8i", {  
-    user_name: name,  
-    user_email: email  
-  });  
-  
-  alert("❌ Rejected Email Sent!");  
-}  
-</script>
 <footer id="contact">
   <div class="social">
     <a href="#">LinkedIn</a>
