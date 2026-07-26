@@ -578,6 +578,39 @@
 <a href="index.html">Back to Home</a>
 </body>
 </html>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+emailjs.init("fEWbl7dUAE1nbMrD5");
+
+function approveUser() {
+  const email = prompt("User Email:");
+  const name = prompt("User Name:");
+
+  emailjs.send("service_wurb215", "template_qli2eve", {
+    user_name: name,
+    user_email: email
+  });
+
+  alert("✅ Approved Email Sent!");
+}
+
+function rejectUser() {
+  const email = prompt("User Email:");
+  const name = prompt("User Name:");
+
+  emailjs.send("service_wurb215", "template_armku8i", {
+    user_name: name,
+    user_email: email
+  });
+
+  alert("❌ Rejected Email Sent!");
+}
+  <div class="admin-buttons">
+  <button onclick="approveUser()">✅ Approve</button>
+  <button onclick="rejectUser()">❌ Don't Approve</button>
+</div>
+</script>
     <form id="joinForm">
   <input type="text" name="name" placeholder="Name" required>
   <input type="email" name="email" placeholder="Email" required>
