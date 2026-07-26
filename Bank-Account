@@ -1,0 +1,26 @@
+class BankAccount:
+    
+    def __init__(self, holder, balance):
+        self.holder = holder
+        self.balance = balance
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if amount <= self.balance:
+            self.balance -= amount
+        else:
+            print("Insufficient Balance")
+
+    def Show_balance(self):
+        print(self.balance)
+
+
+bank_account = BankAccount("Raj", 100000)
+
+bank_account.deposit(50000)
+bank_account.Show_balance()
+
+bank_account.withdraw(100000)
+bank_account.Show_balance()
