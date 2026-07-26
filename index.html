@@ -578,6 +578,25 @@
 <a href="index.html">Back to Home</a>
 </body>
 </html>
+    <form id="joinForm">
+  <input type="text" name="name" placeholder="Name" required>
+  <input type="email" name="email" placeholder="Email" required>
+
+  <button type="button" onclick="approveUser()">Approve</button>
+  <button type="button" onclick="rejectUser()">Not Approved</button>
+</form>
+
+<script>
+function approveUser() {
+  alert("User Approved");
+  // Backend se email bhejna hoga
+}
+
+function rejectUser() {
+  alert("User Not Approved");
+  // Backend se rejection email bhejna hoga
+}
+</script>
   </div>
 </section>
 
