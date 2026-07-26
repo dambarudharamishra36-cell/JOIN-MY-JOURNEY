@@ -6,6 +6,7 @@
 <title>Dambarudhara — Python Developer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   :root{
     --bg: #0e0b09;
@@ -40,6 +41,65 @@
   ::selection{ background: var(--rust); color: var(--cream); }
   a{ color: inherit; text-decoration:none; }
 
+  /* 3D animated background canvas */
+  #bg3d{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  #bg3d::after{ content:none; }
+
+  /* Cinematic depth overlay for the 3D background */
+  #hud-vignette{
+    position: fixed; inset:0; z-index:1; pointer-events:none;
+    background: radial-gradient(ellipse at center, transparent 38%, rgba(3,12,22,0.65) 100%);
+  }
+  #hud-scanline{
+    position: fixed; left:0; right:0; top:-6%; height:2px; z-index:1; pointer-events:none;
+    background: linear-gradient(90deg, transparent, rgba(130,225,255,0.55), transparent);
+    filter: blur(1px);
+    opacity:.55;
+    animation: scan-sweep 7s linear infinite;
+  }
+  @keyframes scan-sweep{
+    0%{ top:-6%; }
+    100%{ top:106%; }
+  }
+
+  /* Flying robot — original geometric HUD-style mech, moves along scroll */
+  #flybot{
+    position: fixed;
+    top: 0; left: 0;
+    width: 92px; height: 92px;
+    z-index: 40;
+    pointer-events: none;
+    will-change: transform;
+    filter: drop-shadow(0 0 14px rgba(79,216,255,0.55));
+    transform: translate3d(-200px,-200px,0);
+  }
+  #flybot svg{ width:100%; height:100%; display:block; }
+  #flybot .bob{
+    animation: flybot-bob 2.6s ease-in-out infinite;
+  }
+  #flybot .thruster{
+    animation: flybot-thrust 0.5s ease-in-out infinite alternate;
+    transform-origin: center;
+  }
+  @keyframes flybot-bob{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-6px); }
+  }
+  @keyframes flybot-thrust{
+    0%{ opacity: .55; transform: scaleY(0.8); }
+    100%{ opacity: 1; transform: scaleY(1.25); }
+  }
+  @media (max-width: 760px){
+    #flybot{ width: 62px; height: 62px; }
+  }
+
   .noise{
     position: fixed; inset:0; pointer-events:none; z-index: 1; opacity:.035; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -72,6 +132,7 @@
   .hero-photo{
     position: relative; aspect-ratio: 4/5; border-radius: 4px; overflow:hidden;
     border: 1px solid var(--line);
+    background: var(--surface);
   }
   .hero-photo img{
     width:100%; height:100%; object-fit:cover; object-position: top center;
@@ -128,6 +189,32 @@
   .btn-ghost:hover{ border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
 
   section{ max-width: 1080px; margin: 0 auto; padding: 70px 24px; position:relative; z-index:2; }
+
+  /* Distinct panel treatment per section — separates them visually from the background and each other */
+  section#about, section#skills, section#projects{
+    background: rgba(28,22,19,0.62);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 56px 44px;
+    margin: 0 auto 44px auto;
+    box-shadow: 0 18px 40px -20px rgba(0,0,0,0.55);
+  }
+  section#about{ border-top: 3px solid var(--rust-bright); }
+  section#skills{ border-top: 3px solid var(--amber); }
+  section#projects{ border-top: 3px solid var(--green); }
+
+  section#about .sec-head, section#skills .sec-head, section#projects .sec-head{
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  section#about .sec-index, section#skills .sec-index, section#projects .sec-index{
+    font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing:.08em;
+  }
+
+  @media (max-width: 760px){
+    section#about, section#skills, section#projects{ padding: 40px 22px; }
+  }
   .sec-head{ margin-bottom: 38px; }
   .sec-cmd{ font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
   .sec-cmd::before{ content:"$ "; color: var(--rust-bright); }
@@ -197,6 +284,7 @@
   footer{
     border-top: 1px solid var(--line); padding: 40px 24px 50px; text-align:center;
     font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    position: relative; z-index: 2;
   }
   footer a{ color: var(--amber); }
   footer .social{ display:flex; justify-content:center; gap:22px; margin-bottom:18px; }
@@ -212,6 +300,7 @@
     .skills-grid{ grid-template-columns: 1fr; }
     .proj-grid{ grid-template-columns: 1fr; }
     nav ul{ display:none; }
+    #bg3d{ opacity: 0.55; }
   }
 
   :focus-visible{ outline: 2px solid var(--amber); outline-offset: 3px; }
@@ -223,7 +312,36 @@
 </head>
 <body>
 
+<canvas id="bg3d"></canvas>
+<div id="hud-vignette"></div>
+<div id="hud-scanline"></div>
 <div class="noise"></div>
+
+<div id="flybot" aria-hidden="true">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <g class="bob">
+      <!-- thruster trail -->
+      <g class="thruster">
+        <ellipse cx="50" cy="86" rx="7" ry="14" fill="rgba(79,216,255,0.55)"/>
+        <ellipse cx="50" cy="86" rx="3.5" ry="9" fill="rgba(234,246,255,0.85)"/>
+      </g>
+      <!-- legs -->
+      <rect x="38" y="62" width="8" height="20" rx="3" fill="#12303f" stroke="#4fd8ff" stroke-width="1.4"/>
+      <rect x="54" y="62" width="8" height="20" rx="3" fill="#12303f" stroke="#4fd8ff" stroke-width="1.4"/>
+      <!-- arms swept back for flight pose -->
+      <rect x="18" y="40" width="8" height="24" rx="3" fill="#12303f" stroke="#4fd8ff" stroke-width="1.4" transform="rotate(28 22 40)"/>
+      <rect x="74" y="40" width="8" height="24" rx="3" fill="#12303f" stroke="#4fd8ff" stroke-width="1.4" transform="rotate(-28 78 40)"/>
+      <!-- torso / chest plate -->
+      <path d="M50 26 L66 36 L62 62 L50 68 L38 62 L34 36 Z" fill="#0f2a38" stroke="#eaf6ff" stroke-width="1.6"/>
+      <!-- core glow -->
+      <circle cx="50" cy="44" r="6.5" fill="rgba(79,216,255,0.25)"/>
+      <circle cx="50" cy="44" r="3.2" fill="#eaf6ff"/>
+      <!-- head -->
+      <path d="M50 8 L58 14 L57 24 L50 28 L43 24 L42 14 Z" fill="#0f2a38" stroke="#4fd8ff" stroke-width="1.6"/>
+      <rect x="45" y="15" width="10" height="4" rx="1.5" fill="#eaf6ff" opacity="0.9"/>
+    </g>
+  </svg>
+</div>
 
 <header>
   <div class="nav-wrap">
@@ -261,6 +379,7 @@
   <div class="sec-head">
     <div class="sec-cmd">cat README.md</div>
     <div class="sec-title">About <span class="dim">/ readme</span></div>
+    <div class="sec-index">SECTION 01 / 03</div>
   </div>
   <div class="readme-box">
     <div class="readme-topbar">
@@ -288,6 +407,7 @@
   <div class="sec-head">
     <div class="sec-cmd">skills --list --verbose</div>
     <div class="sec-title">Skills</div>
+    <div class="sec-index">SECTION 02 / 03</div>
   </div>
 
   <div class="skills-grid">
@@ -324,6 +444,7 @@
   <div class="sec-head">
     <div class="sec-cmd">ls ~/projects</div>
     <div class="sec-title">Projects</div>
+    <div class="sec-index">SECTION 03 / 03</div>
   </div>
 
   <div class="proj-grid">
@@ -369,7 +490,7 @@
   <div class="social">
     <a href="https://github.com/" target="_blank">GitHub</a>
     <a href="#">LinkedIn</a>
-    <a href="#">Email</a>
+    <a href="mailto:dambarudharamishra36@gmail.com">Email</a>
   </div>
   <div>©️ 2026 Dambarudhara — built with 🤍 and a lot of curiosity</div>
 </footer>
@@ -412,6 +533,441 @@
     });
   }, { threshold: 0.4 });
   bars.forEach(b => io.observe(b));
+</script>
+
+<script>
+  /* ============ 3D animated background — holographic HUD (blue/white) ============ */
+  (function(){
+    const canvas = document.getElementById('bg3d');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 16);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Depth fog for a more cinematic, atmospheric feel
+    scene.fog = new THREE.FogExp2(0x03101c, 0.024);
+
+    // Holographic blue / cyan / white palette
+    const cyan     = new THREE.Color(0x4fd8ff);
+    const blueCore = new THREE.Color(0x2ea3ff);
+    const iceWhite = new THREE.Color(0xeaf6ff);
+    const deepBlue = new THREE.Color(0x0b3d5c);
+
+    // Soft round sprite texture — reused for glow, dust and stars (avoids hard square points)
+    const dotCanvas = document.createElement('canvas');
+    dotCanvas.width = dotCanvas.height = 64;
+    const dctx = dotCanvas.getContext('2d');
+    const dotGrad = dctx.createRadialGradient(32,32,0,32,32,32);
+    dotGrad.addColorStop(0, 'rgba(255,255,255,1)');
+    dotGrad.addColorStop(0.4, 'rgba(200,235,255,0.7)');
+    dotGrad.addColorStop(1, 'rgba(200,235,255,0)');
+    dctx.fillStyle = dotGrad;
+    dctx.fillRect(0,0,64,64);
+    const dotTex = new THREE.CanvasTexture(dotCanvas);
+
+    const core = new THREE.Group();
+    scene.add(core);
+
+    // --- Concentric HUD rings (arc-reactor style) ---
+    const ringDefs = [
+      { r: 2.6,  tube: 0.012, color: iceWhite,  seg: 128, tilt: [Math.PI/2.1, 0, 0] },
+      { r: 3.4,  tube: 0.01,  color: cyan,      seg: 96,  tilt: [Math.PI/2.6, 0.4, 0] },
+      { r: 4.3,  tube: 0.008, color: blueCore,  seg: 96,  tilt: [Math.PI/1.8, -0.3, 0] },
+      { r: 5.2,  tube: 0.006, color: cyan,      seg: 64,  tilt: [Math.PI/2.3, 0.9, 0.2] },
+    ];
+    const rings = [];
+    ringDefs.forEach((def, i) => {
+      const geo = new THREE.TorusGeometry(def.r, def.tube, 8, def.seg);
+      const mat = new THREE.MeshBasicMaterial({
+        color: def.color, transparent: true, opacity: 0.55 - i * 0.06
+      });
+      const ring = new THREE.Mesh(geo, mat);
+      ring.rotation.set(def.tilt[0], def.tilt[1], def.tilt[2]);
+      ring.userData.spin = (i % 2 === 0 ? 1 : -1) * (0.0025 + i * 0.0008);
+      core.add(ring);
+      rings.push(ring);
+    });
+
+    // Dashed / segmented outer ring (like a radar dial)
+    const dashGeo = new THREE.TorusGeometry(6.1, 0.015, 6, 180);
+    const dashMat = new THREE.MeshBasicMaterial({ color: cyan, transparent: true, opacity: 0.35 });
+    const dashRing = new THREE.Mesh(dashGeo, dashMat);
+    dashRing.rotation.x = Math.PI / 2.15;
+    core.add(dashRing);
+
+    // Drifting energy-trail knot for extra depth and motion
+    const knotGeo = new THREE.TorusKnotGeometry(1.9, 0.045, 140, 10, 2, 3);
+    const knotMat = new THREE.MeshBasicMaterial({ color: blueCore, wireframe: true, transparent: true, opacity: 0.3 });
+    const knot = new THREE.Mesh(knotGeo, knotMat);
+    core.add(knot);
+
+    // Glowing wireframe core sphere
+    const coreGeo = new THREE.IcosahedronGeometry(1.35, 2);
+    const coreMat = new THREE.MeshBasicMaterial({ color: iceWhite, wireframe: true, transparent: true, opacity: 0.5 });
+    const coreSphere = new THREE.Mesh(coreGeo, coreMat);
+    core.add(coreSphere);
+
+    // Soft glow sprite behind the core (additive blending)
+    const glowMat = new THREE.SpriteMaterial({ map: dotTex, color: 0x69c8ff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+    const glowSprite = new THREE.Sprite(glowMat);
+    glowSprite.scale.set(9, 9, 1);
+    core.add(glowSprite);
+
+    // Bright hot center point
+    const hotMat = new THREE.SpriteMaterial({ map: dotTex, color: 0xffffff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.9 });
+    const hotSprite = new THREE.Sprite(hotMat);
+    hotSprite.scale.set(2.4, 2.4, 1);
+    core.add(hotSprite);
+
+    // --- Scan grid plane (radar floor) ---
+    const gridGroup = new THREE.Group();
+    const grid = new THREE.GridHelper(30, 30, 0x2ea3ff, 0x123a52);
+    grid.position.y = -6;
+    grid.material.transparent = true;
+    grid.material.opacity = 0.25;
+    gridGroup.add(grid);
+    scene.add(gridGroup);
+
+    // --- Distant starfield — small, still, far behind everything for depth ---
+    const STAR_COUNT = 500;
+    const starPositions = new Float32Array(STAR_COUNT * 3);
+    for (let i = 0; i < STAR_COUNT; i++){
+      const radius = 35 + Math.random() * 40;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos((Math.random() * 2) - 1);
+      starPositions[i * 3]     = radius * Math.sin(phi) * Math.cos(theta);
+      starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      starPositions[i * 3 + 2] = -Math.abs(radius * Math.cos(phi)) - 10;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    const starMat = new THREE.PointsMaterial({
+      map: dotTex, color: iceWhite, size: 0.12, transparent: true, opacity: 0.5,
+      sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const stars = new THREE.Points(starGeo, starMat);
+    scene.add(stars);
+
+    // --- Fine particle field — floating data motes (soft, glowing) ---
+    const PARTICLE_COUNT = 260;
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    for (let i = 0; i < PARTICLE_COUNT; i++){
+      positions[i * 3]     = (Math.random() - 0.5) * 38;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 24;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 4;
+    }
+    const particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMat = new THREE.PointsMaterial({
+      map: dotTex, color: cyan, size: 0.16, transparent: true, opacity: 0.65,
+      sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const particles = new THREE.Points(particleGeo, particleMat);
+    scene.add(particles);
+
+    // --- Near dust layer — larger, closer to camera, slow drift, parallax realism ---
+    const NEAR_COUNT = 60;
+    const nearPositions = new Float32Array(NEAR_COUNT * 3);
+    for (let i = 0; i < NEAR_COUNT; i++){
+      nearPositions[i * 3]     = (Math.random() - 0.5) * 30;
+      nearPositions[i * 3 + 1] = (Math.random() - 0.5) * 18;
+      nearPositions[i * 3 + 2] = Math.random() * 8 + 4;
+    }
+    const nearGeo = new THREE.BufferGeometry();
+    nearGeo.setAttribute('position', new THREE.BufferAttribute(nearPositions, 3));
+    const nearMat = new THREE.PointsMaterial({
+      map: dotTex, color: iceWhite, size: 0.28, transparent: true, opacity: 0.35,
+      sizeAttenuation: true, blending: THREE.AdditiveBlending, depthWrite: false
+    });
+    const nearDust = new THREE.Points(nearGeo, nearMat);
+    scene.add(nearDust);
+
+    // --- Small orbiting nodes around the rings (telemetry pips) ---
+    const nodeGeo = new THREE.SphereGeometry(0.05, 8, 8);
+    const nodes = [];
+    for (let i = 0; i < 10; i++){
+      const mat = new THREE.MeshBasicMaterial({ color: i % 2 ? cyan : iceWhite, transparent: true, opacity: 0.9 });
+      const node = new THREE.Mesh(nodeGeo, mat);
+      node.userData.radius = 3.4 + Math.random() * 2.2;
+      node.userData.speed = 0.15 + Math.random() * 0.25;
+      node.userData.offset = Math.random() * Math.PI * 2;
+      node.userData.tilt = Math.random() * Math.PI;
+      core.add(node);
+      nodes.push(node);
+    }
+
+    // Danger / overload accent color — mixed in with the blue theme for drama
+    const danger = new THREE.Color(0xff4d2e);
+    const dangerHot = new THREE.Color(0xffb14f);
+
+    // --- Crackling lightning arcs around the core (jagged, flashing) ---
+    const ARC_COUNT = 6;
+    const arcs = [];
+    for (let i = 0; i < ARC_COUNT; i++){
+      const arcGeo = new THREE.BufferGeometry();
+      const segCount = 10;
+      const arcPositions = new Float32Array((segCount + 1) * 3);
+      arcGeo.setAttribute('position', new THREE.BufferAttribute(arcPositions, 3));
+      const arcMat = new THREE.LineBasicMaterial({ color: cyan, transparent: true, opacity: 0 });
+      const arc = new THREE.Line(arcGeo, arcMat);
+      arc.userData.segCount = segCount;
+      arc.userData.nextFlash = Math.random() * 3;
+      arc.userData.life = 0;
+      core.add(arc);
+      arcs.push(arc);
+    }
+
+    function shapeArc(arc){
+      const segCount = arc.userData.segCount;
+      const r1 = 1.6 + Math.random() * 0.4;
+      const r2 = 2.8 + Math.random() * 2.2;
+      const thetaA = Math.random() * Math.PI * 2;
+      const thetaB = thetaA + (Math.random() - 0.5) * 2.4;
+      const posAttr = arc.geometry.attributes.position;
+      for (let s = 0; s <= segCount; s++){
+        const t = s / segCount;
+        const r = THREE.MathUtils.lerp(r1, r2, t);
+        const theta = THREE.MathUtils.lerp(thetaA, thetaB, t);
+        const jitter = (Math.random() - 0.5) * 0.35 * Math.sin(t * Math.PI);
+        posAttr.setXYZ(
+          s,
+          Math.cos(theta) * r + jitter,
+          Math.sin(theta) * r * 0.6 + jitter,
+          (Math.random() - 0.5) * 0.6
+        );
+      }
+      posAttr.needsUpdate = true;
+    }
+
+    // --- Shockwave rings — periodically pulse outward from the core ---
+    const SHOCK_POOL = 3;
+    const shockwaves = [];
+    for (let i = 0; i < SHOCK_POOL; i++){
+      const geo = new THREE.RingGeometry(1, 1.08, 64);
+      const mat = new THREE.MeshBasicMaterial({ color: cyan, transparent: true, opacity: 0, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(geo, mat);
+      ring.userData.active = false;
+      ring.userData.age = 0;
+      core.add(ring);
+      shockwaves.push(ring);
+    }
+    let shockTimer = 1.5;
+
+    function triggerShockwave(color){
+      const ring = shockwaves.find(r => !r.userData.active);
+      if (!ring) return;
+      ring.userData.active = true;
+      ring.userData.age = 0;
+      ring.scale.setScalar(1);
+      ring.material.color.copy(color);
+      ring.material.opacity = 0.8;
+      ring.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+    }
+
+    // Camera shake state (triggered on lightning flash for extra intensity)
+    let shake = 0;
+    let mouseX = 0, mouseY = 0;
+    let targetRotX = 0, targetRotY = 0;
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth) - 0.5;
+      mouseY = (e.clientY / window.innerHeight) - 0.5;
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const clock = new THREE.Clock();
+    let lastT = 0;
+
+    function animate(){
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+      const dt = Math.min(t - lastT, 0.1);
+      lastT = t;
+
+      rings.forEach((ring) => { ring.rotation.z += ring.userData.spin; });
+      dashRing.rotation.z -= 0.0018;
+      knot.rotation.x += 0.0016;
+      knot.rotation.y -= 0.0022;
+      coreSphere.rotation.y += 0.003;
+      coreSphere.rotation.x += 0.0012;
+
+      // Core pulse cycles between calm blue and a "danger overload" red-orange flare
+      const alarmCycle = (Math.sin(t * 0.35) + 1) / 2; // 0..1 slow breathing between states
+      const isAlarm = alarmCycle > 0.82;
+      const alarmMix = isAlarm ? (alarmCycle - 0.82) / 0.18 : 0;
+      const mixedColor = cyan.clone().lerp(danger, alarmMix);
+      const mixedHot = iceWhite.clone().lerp(dangerHot, alarmMix);
+      glowMat.color.copy(mixedColor);
+      hotMat.color.copy(mixedHot);
+
+      const pulse = 1 + Math.sin(t * 1.4) * 0.06 + alarmMix * 0.35;
+      glowSprite.scale.set(9 * pulse, 9 * pulse, 1);
+      hotSprite.scale.set(2.4 * (1 + Math.sin(t * 2.2) * 0.1 + alarmMix * 0.5), 2.4 * (1 + Math.sin(t * 2.2) * 0.1 + alarmMix * 0.5), 1);
+
+      // Lightning arcs — flash briefly at random intervals, more frequent during alarm
+      arcs.forEach((arc) => {
+        arc.userData.nextFlash -= dt;
+        if (arc.userData.nextFlash <= 0 && arc.userData.life <= 0){
+          shapeArc(arc);
+          arc.userData.life = 0.12 + Math.random() * 0.1;
+          arc.material.color.copy(isAlarm ? danger : cyan);
+          arc.material.opacity = 0.9;
+          arc.userData.nextFlash = (isAlarm ? 0.4 : 1.6) + Math.random() * (isAlarm ? 0.6 : 2.2);
+          shake = Math.max(shake, isAlarm ? 0.22 : 0.1);
+          if (Math.random() < 0.5) triggerShockwave(isAlarm ? danger : cyan);
+        }
+        if (arc.userData.life > 0){
+          arc.userData.life -= dt;
+          arc.material.opacity = Math.max(0, arc.userData.life * 6);
+          if (arc.userData.life <= 0) arc.material.opacity = 0;
+        }
+      });
+
+      // Shockwave rings expanding outward and fading
+      shockwaves.forEach((ring) => {
+        if (!ring.userData.active) return;
+        ring.userData.age += dt;
+        const life = ring.userData.age / 1.1;
+        if (life >= 1){
+          ring.userData.active = false;
+          ring.material.opacity = 0;
+          return;
+        }
+        const scale = 1 + life * 6;
+        ring.scale.set(scale, scale, 1);
+        ring.material.opacity = 0.7 * (1 - life);
+      });
+      shockTimer -= dt;
+      if (shockTimer <= 0){
+        triggerShockwave(isAlarm ? danger : cyan);
+        shockTimer = 2.5 + Math.random() * 2;
+      }
+
+      // Screen shake decays after a lightning flash
+      shake = Math.max(0, shake - dt * 0.6);
+
+      nodes.forEach((node) => {
+        const a = t * node.userData.speed + node.userData.offset;
+        const r = node.userData.radius;
+        node.position.set(Math.cos(a) * r, Math.sin(a) * r * Math.sin(node.userData.tilt), Math.sin(a) * r * Math.cos(node.userData.tilt));
+      });
+
+      particles.rotation.y = t * 0.012;
+      nearDust.rotation.y = t * 0.006;
+      nearDust.position.y = Math.sin(t * 0.1) * 0.4;
+      stars.rotation.y = t * 0.003;
+      gridGroup.rotation.y = t * 0.01;
+
+      targetRotX += (mouseY * 0.3 - targetRotX) * 0.03;
+      targetRotY += (mouseX * 0.4 - targetRotY) * 0.03;
+      core.rotation.x = targetRotX;
+      core.rotation.y = targetRotY + t * 0.02;
+
+      const shakeX = (Math.random() - 0.5) * shake;
+      const shakeY = (Math.random() - 0.5) * shake;
+      camera.position.x += (mouseX * 1.4 - camera.position.x) * 0.02 + shakeX;
+      camera.position.y += (-mouseY * 1.0 - camera.position.y) * 0.02 + shakeY;
+      camera.position.z = 16 + Math.sin(t * 0.15) * 1.4;
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    if (reduceMotion){
+      renderer.render(scene, camera);
+    } else {
+      animate();
+    }
+  })();
+</script>
+
+<script>
+  /* ============ Flying robot — moves along a curved path as the page scrolls ============ */
+  (function(){
+    const bot = document.getElementById('flybot');
+    if (!bot) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Waypoints as fractions of viewport width/height — the bot eases between these
+    // as the user scrolls from top (0) to bottom (1) of the page.
+    const waypoints = [
+      { x: 0.08, y: 0.14, rot: -8  },
+      { x: 0.82, y: 0.30, rot: 10  },
+      { x: 0.20, y: 0.50, rot: -12 },
+      { x: 0.78, y: 0.68, rot: 8   },
+      { x: 0.15, y: 0.85, rot: -6  },
+      { x: 0.85, y: 0.94, rot: 12  }
+    ];
+
+    function lerp(a, b, t){ return a + (b - a) * t; }
+
+    function pathPoint(progress){
+      const segCount = waypoints.length - 1;
+      const scaled = Math.min(Math.max(progress, 0), 1) * segCount;
+      let idx = Math.floor(scaled);
+      if (idx >= segCount) idx = segCount - 1;
+      const localT = scaled - idx;
+      const a = waypoints[idx];
+      const b = waypoints[idx + 1];
+      return {
+        x: lerp(a.x, b.x, localT),
+        y: lerp(a.y, b.y, localT),
+        rot: lerp(a.rot, b.rot, localT)
+      };
+    }
+
+    let ticking = false;
+
+    function update(){
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? scrollTop / docHeight : 0;
+
+      const p = pathPoint(progress);
+      const x = p.x * window.innerWidth - 46;
+      const y = p.y * window.innerHeight - 46;
+
+      // Face direction of travel: tilt more when moving right vs left across segments
+      const segCount = waypoints.length - 1;
+      const scaled = progress * segCount;
+      let idx = Math.floor(scaled);
+      if (idx >= segCount) idx = segCount - 1;
+      const movingRight = waypoints[idx + 1].x >= waypoints[idx].x;
+      const flip = movingRight ? 1 : -1;
+
+      bot.style.transform =
+        `translate3d(${x}px, ${y}px, 0) rotate(${p.rot}deg) scaleX(${flip})`;
+
+      ticking = false;
+    }
+
+    function onScroll(){
+      if (!ticking){
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+
+    if (reduceMotion){
+      bot.querySelectorAll('.bob, .thruster').forEach(el => { el.style.animation = 'none'; });
+    }
+  })();
 </script>
 
 </body>
