@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dambarudhara — Python Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0e0b09;
+    --bg-soft: #171210;
+    --surface: #1c1613;
+    --surface-2: #221a16;
+    --line: #33261f;
+    --rust: #a8452d;
+    --rust-bright: #d15a3a;
+    --amber: #d4a054;
+    --cream: #ede4d3;
+    --muted: #9a8c7b;
+    --green: #8fae6c;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(168,69,45,0.16), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 20%, rgba(212,160,84,0.08), transparent 55%),
+      var(--bg);
+    color: var(--cream);
+    font-family: var(--sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::selection{ background: var(--rust); color: var(--cream); }
+  a{ color: inherit; text-decoration:none; }
+
+  .noise{
+    position: fixed; inset:0; pointer-events:none; z-index: 1; opacity:.035; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  header{
+    position: sticky; top:0; z-index:50;
+    background: rgba(14,11,9,0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-wrap{
+    max-width: 1080px; margin:0 auto; padding: 16px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family: var(--mono); font-weight:700; font-size: 15px; color: var(--cream);
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo::before{ content:"~/"; color: var(--rust-bright); }
+  nav ul{ display:flex; gap: 28px; list-style:none; }
+  nav a{ font-family: var(--mono); font-size: 13px; color: var(--muted); transition: color .2s; }
+  nav a:hover{ color: var(--amber); }
+
+  .hero{
+    max-width: 1080px; margin: 0 auto; padding: 80px 24px 60px;
+    display:grid; grid-template-columns: 300px 1fr; gap: 56px; align-items:center;
+    position: relative; z-index:2;
+  }
+  .hero-photo{
+    position: relative; aspect-ratio: 4/5; border-radius: 4px; overflow:hidden;
+    border: 1px solid var(--line);
+  }
+  .hero-photo img{
+    width:100%; height:100%; object-fit:cover; object-position: top center;
+    filter: saturate(0.92) contrast(1.03);
+  }
+  .hero-photo::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 55%, rgba(14,11,9,0.55) 100%);
+  }
+  .hero-photo::before{
+    content:"< img.jpg />"; position:absolute; bottom:10px; left:12px; z-index:2;
+    font-family: var(--mono); font-size: 10px; color: var(--amber);
+    letter-spacing: .04em; opacity:.85;
+  }
+
+  .eyebrow{
+    font-family: var(--mono); font-size: 13px; color: var(--green);
+    display:flex; align-items:center; gap:8px; margin-bottom:18px;
+  }
+  .eyebrow::before{
+    content:""; width:7px; height:7px; border-radius:50%; background: var(--green);
+    box-shadow: 0 0 8px var(--green); animation: blink 1.8s infinite;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  .hero h1{
+    font-family: var(--mono); font-weight: 800; font-size: clamp(32px, 4.4vw, 52px);
+    color: var(--cream); letter-spacing: -0.01em; line-height:1.08; margin-bottom: 14px;
+  }
+  .hero h1 span{ color: var(--rust-bright); }
+
+  .role-line{
+    font-family: var(--mono); font-size: clamp(15px, 2vw, 19px);
+    color: var(--amber); margin-bottom: 22px; min-height: 28px; display:flex; align-items:center;
+  }
+  .role-line .prompt{ color: var(--muted); margin-right:8px; }
+  .role-line .cursor{
+    display:inline-block; width:9px; height:1.1em; background: var(--amber);
+    margin-left:3px; animation: caret 1s steps(1) infinite;
+  }
+  @keyframes caret{ 0%,49%{opacity:1;} 50%,100%{opacity:0;} }
+
+  .hero p.tag{ color: var(--muted); font-size: 15.5px; max-width: 480px; margin-bottom: 30px; }
+
+  .hero-cta{ display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{
+    font-family: var(--mono); font-size: 13.5px; font-weight:600;
+    padding: 12px 22px; border-radius: 3px; display:inline-flex; align-items:center; gap:8px;
+    transition: transform .18s, background .18s, border-color .18s; border: 1px solid transparent;
+  }
+  .btn-primary{ background: var(--rust); color: var(--cream); }
+  .btn-primary:hover{ background: var(--rust-bright); transform: translateY(-2px); }
+  .btn-ghost{ border-color: var(--line); color: var(--cream); }
+  .btn-ghost:hover{ border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
+
+  section{ max-width: 1080px; margin: 0 auto; padding: 70px 24px; position:relative; z-index:2; }
+  .sec-head{ margin-bottom: 38px; }
+  .sec-cmd{ font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .sec-cmd::before{ content:"$ "; color: var(--rust-bright); }
+  .sec-title{ font-family: var(--mono); font-weight:700; font-size: clamp(22px, 3vw, 30px); color: var(--cream); }
+  .sec-title .dim{ color: var(--muted); font-weight: 500; }
+
+  .readme-box{ background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow:hidden; }
+  .readme-topbar{
+    display:flex; align-items:center; gap:8px; padding: 12px 16px;
+    border-bottom:1px solid var(--line); background: var(--surface-2);
+  }
+  .dot{ width:10px; height:10px; border-radius:50%; }
+  .dot.r{ background:#c9564a; } .dot.y{ background:#d4a054; } .dot.g{ background:#8fae6c; }
+  .readme-file{ margin-left:10px; font-family: var(--mono); font-size:12px; color: var(--muted); }
+  .readme-body{ padding: 28px 30px; }
+  .readme-body h3{ font-family: var(--mono); font-size: 20px; margin-bottom: 16px; color: var(--cream); }
+  .readme-body ul{ list-style:none; margin: 18px 0 4px; }
+  .readme-body ul li{ font-family: var(--sans); font-size: 15px; color: var(--muted); padding: 6px 0 6px 22px; position:relative; }
+  .readme-body ul li::before{ content:"›"; position:absolute; left:0; color: var(--rust-bright); font-weight:700; }
+  .readme-body p.line{ color: var(--cream); font-size: 15.5px; margin: 4px 0; }
+
+  .skills-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 40px 56px; }
+  .skill-row{ margin-bottom: 22px; }
+  .skill-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .skill-name{ font-family: var(--mono); font-size: 14px; color: var(--cream); }
+  .skill-pct{ font-family: var(--mono); font-size: 13px; color: var(--amber); }
+  .bar-track{ height: 8px; background: var(--surface-2); border-radius: 4px; overflow:hidden; border: 1px solid var(--line); }
+  .bar-fill{
+    height:100%; border-radius:4px; background: linear-gradient(90deg, var(--rust), var(--amber));
+    width:0%; transition: width 1.3s cubic-bezier(.22,.9,.3,1);
+  }
+
+  .tag-cloud{ display:flex; flex-wrap:wrap; gap:10px; margin-top: 6px; }
+  .tag-pill{
+    font-family: var(--mono); font-size: 12.5px; color: var(--cream);
+    border: 1px solid var(--line); background: var(--surface); padding: 8px 14px;
+    border-radius: 20px; display:flex; align-items:center; gap:7px;
+  }
+  .tag-pill::before{ content:"#"; color: var(--rust-bright); }
+
+  .skills-col-title{
+    font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing:.08em;
+    text-transform:uppercase; margin-bottom: 20px;
+  }
+
+  .proj-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .proj-card{
+    background: var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding: 24px; display:flex; flex-direction:column; gap:14px;
+    transition: border-color .2s, transform .2s;
+  }
+  .proj-card:hover{ border-color: var(--rust-bright); transform: translateY(-4px); }
+  .proj-head{ display:flex; align-items:center; justify-content:space-between; }
+  .proj-icon{
+    width:34px; height:34px; border-radius:6px; background: var(--surface-2);
+    display:flex; align-items:center; justify-content:center; font-family:var(--mono);
+    color: var(--amber); font-size:16px; border:1px solid var(--line);
+  }
+  .proj-lang{ font-family: var(--mono); font-size:11px; color: var(--muted); display:flex; align-items:center; gap:6px; }
+  .proj-lang .lang-dot{ width:8px; height:8px; border-radius:50%; background: var(--rust-bright); }
+  .proj-card h4{ font-family: var(--mono); font-size: 16px; color: var(--cream); }
+  .proj-card p{ font-size: 13.8px; color: var(--muted); flex-grow:1; }
+  .proj-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+  .proj-link{ font-family: var(--mono); font-size:12.5px; color: var(--amber); border-bottom: 1px solid transparent; }
+  .proj-link:hover{ border-color: var(--amber); }
+
+  footer{
+    border-top: 1px solid var(--line); padding: 40px 24px 50px; text-align:center;
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  }
+  footer a{ color: var(--amber); }
+  footer .social{ display:flex; justify-content:center; gap:22px; margin-bottom:18px; }
+  footer .social a{ color: var(--cream); font-size: 13px; }
+  footer .social a:hover{ color: var(--rust-bright); }
+
+  @media (max-width: 760px){
+    .hero{ grid-template-columns: 1fr; padding-top: 50px; }
+    .hero-photo{ max-width: 260px; margin: 0 auto; }
+    .hero h1, .role-line, .hero p.tag, .hero-cta{ text-align:center; }
+    .hero-cta{ justify-content:center; }
+    .role-line{ justify-content:center; }
+    .skills-grid{ grid-template-columns: 1fr; }
+    .proj-grid{ grid-template-columns: 1fr; }
+    nav ul{ display:none; }
+  }
+
+  :focus-visible{ outline: 2px solid var(--amber); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<header>
+  <div class="nav-wrap">
+    <div class="logo">dambarudhara</div>
+    <nav>
+      <ul>
+        <li><a href="#about">about</a></li>
+        <li><a href="#skills">skills</a></li>
+        <li><a href="#projects">projects</a></li>
+        <li><a href="#contact">contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-photo">
+    <img src="profile.jpg" alt="Dambarudhara">
+  </div>
+  <div class="hero-copy">
+    <div class="eyebrow">available for opportunities</div>
+    <h1>Hi, I'm <span>Dambarudhara</span> 👋</h1>
+    <div class="role-line">
+      <span class="prompt">$</span><span id="typedRole"></span><span class="cursor"></span>
+    </div>
+    <p class="tag">Student learning Python, C++ and Data Structures. Interested in AI/ML and Software Development — currently sharpening problem-solving skills, one project at a time.</p>
+    <div class="hero-cta">
+      <a href="https://github.com/" target="_blank" class="btn btn-primary">View GitHub →</a>
+      <a href="#projects" class="btn btn-ghost">See Projects</a>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="sec-head">
+    <div class="sec-cmd">cat README.md</div>
+    <div class="sec-title">About <span class="dim">/ readme</span></div>
+  </div>
+  <div class="readme-box">
+    <div class="readme-topbar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="readme-file">README.md</span>
+    </div>
+    <div class="readme-body">
+      <h3>Hi, I'm Dambarudhara 👋</h3>
+      <p class="line">🎓 Student</p>
+      <p class="line">💻 Learning Python, C++ and Data Structures</p>
+      <p class="line">🚀 Interested in AI/ML and Software Development</p>
+      <p class="line">🌱 Currently improving problem-solving skills</p>
+      <ul>
+        <li>Python</li>
+        <li>C++</li>
+        <li>Git &amp; GitHub</li>
+        <li>AI and ML</li>
+        <li>DSA in C++</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="sec-head">
+    <div class="sec-cmd">skills --list --verbose</div>
+    <div class="sec-title">Skills</div>
+  </div>
+
+  <div class="skills-grid">
+    <div>
+      <div class="skills-col-title">Proficiency</div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name">Python</span><span class="skill-pct">80%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-pct="80"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name">C++</span><span class="skill-pct">70%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-pct="70"></div></div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-top"><span class="skill-name">HTML</span><span class="skill-pct">60%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-pct="60"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="skills-col-title">Focus areas</div>
+      <div class="tag-cloud">
+        <span class="tag-pill">AI and ML</span>
+        <span class="tag-pill">DSA in C++</span>
+        <span class="tag-pill">Git &amp; GitHub</span>
+        <span class="tag-pill">Problem Solving</span>
+        <span class="tag-pill">Software Engineering</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="sec-head">
+    <div class="sec-cmd">ls ~/projects</div>
+    <div class="sec-title">Projects</div>
+  </div>
+
+  <div class="proj-grid">
+    <div class="proj-card">
+      <div class="proj-head">
+        <div class="proj-icon">✊</div>
+        <div class="proj-lang"><span class="lang-dot"></span>Python</div>
+      </div>
+      <h4>Rock Paper Scissors</h4>
+      <p>A command-line Rock Paper Scissors game against the computer, built to practice logic, conditionals and randomization in Python.</p>
+      <div class="proj-footer">
+        <a href="#" class="proj-link">View repo →</a>
+      </div>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-head">
+        <div class="proj-icon">🔐</div>
+        <div class="proj-lang"><span class="lang-dot"></span>Python</div>
+      </div>
+      <h4>Password Validation</h4>
+      <p>A password-strength validator that checks length, character variety and common patterns before accepting user input.</p>
+      <div class="proj-footer">
+        <a href="#" class="proj-link">View repo →</a>
+      </div>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-head">
+        <div class="proj-icon">🏦</div>
+        <div class="proj-lang"><span class="lang-dot"></span>C++</div>
+      </div>
+      <h4>Bank Account System</h4>
+      <p>A simple banking system to create accounts, deposit, withdraw and check balance — built to practice C++ fundamentals and OOP.</p>
+      <div class="proj-footer">
+        <a href="#" class="proj-link">View repo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="social">
+    <a href="https://github.com/" target="_blank">GitHub</a>
+    <a href="#">LinkedIn</a>
+    <a href="#">Email</a>
+  </div>
+  <div>©️ 2026 Dambarudhara — built with 🤍 and a lot of curiosity</div>
+</footer>
+
+<script>
+  const roles = ["Python Developer", "C++ Programmer", "Software Engineer"];
+  const el = document.getElementById('typedRole');
+  let roleIdx = 0, charIdx = 0, deleting = false;
+
+  function tick(){
+    const current = roles[roleIdx];
+    if(!deleting){
+      charIdx++;
+      el.textContent = current.slice(0, charIdx);
+      if(charIdx === current.length){
+        deleting = true;
+        setTimeout(tick, 1400);
+        return;
+      }
+    } else {
+      charIdx--;
+      el.textContent = current.slice(0, charIdx);
+      if(charIdx === 0){
+        deleting = false;
+        roleIdx = (roleIdx + 1) % roles.length;
+      }
+    }
+    setTimeout(tick, deleting ? 45 : 85);
+  }
+  tick();
+
+  const bars = document.querySelectorAll('.bar-fill');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const bar = entry.target;
+        bar.style.width = bar.dataset.pct + '%';
+        io.unobserve(bar);
+      }
+    });
+  }, { threshold: 0.4 });
+  bars.forEach(b => io.observe(b));
+</script>
+
+</body>
+</html>
