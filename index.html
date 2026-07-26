@@ -533,8 +533,8 @@
 
   <div class="join-wrap">
     <div class="join-copy">
-      <p>Kisi project par saath kaam karna chahte ho ya mujhse judna (join) chahte ho? Neeche form bharo — click karte hi tumhara default email app khulega, request already likhi hui milegi, bas "Send" dabana hoga.</p>
-      <p>Seedha email karna ho to:</p>
+      <p>Want to collaborate on a project or join forces with me? Fill out the form below and hit "JOIN" — your request will reach me directly, no need to open an email app. I'll review it and get back to you.</p>
+      <p>Prefer to email directly?</p>
       <span class="join-email">dambarudharamishra7@gmail.com</span>
     </div>
 
@@ -549,7 +549,7 @@
       </div>
       <div class="field">
         <label for="joinMsg">Message</label>
-        <textarea id="joinMsg" name="message" rows="4" placeholder="Mujhe aapke saath join hona hai / collaborate karna hai kyunki..."></textarea>
+        <textarea id="joinMsg" name="message" rows="4" placeholder="I'd like to join / collaborate with you because..."></textarea>
       </div>
       <button type="submit" class="btn btn-join">JOIN →</button>
       <div class="join-status" id="joinStatus"></div>
@@ -607,41 +607,49 @@
 </script>
 
 <script>
-  /* ============ Join request — builds a mailto: link and hands off to the user's email app ============ */
+  /* ============ Join request — sends straight to Google Sheet + email via Apps Script ============ */
   (function(){
-    const JOIN_EMAIL = "dambarudharamishra7@gmail.com";
+    // Deploy your Apps Script (see apps-script.gs) and paste the Web app URL here
+    const SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_URL_HERE";
+
     const form = document.getElementById('joinForm');
     const statusEl = document.getElementById('joinStatus');
     if (!form) return;
 
-    form.addEventListener('submit', function(e){
+    form.addEventListener('submit', async function(e){
       e.preventDefault();
 
       const name = document.getElementById('joinName').value.trim();
       const fromEmail = document.getElementById('joinEmail').value.trim();
       const message = document.getElementById('joinMsg').value.trim();
+      const submitBtn = form.querySelector('button[type="submit"]');
 
       if (!name || !fromEmail){
-        statusEl.textContent = "Naam aur email dono zaroori hain.";
+        statusEl.textContent = "Name and email are both required.";
         statusEl.classList.add('error');
         return;
       }
 
-      const subject = `Join Request from ${name}`;
-      const body =
-        `Naam: ${name}\n` +
-        `Email: ${fromEmail}\n\n` +
-        `Message:\n${message || "(koi message nahi likha)"}`;
-
-      const mailtoLink =
-        `mailto:${JOIN_EMAIL}` +
-        `?subject=${encodeURIComponent(subject)}` +
-        `&body=${encodeURIComponent(body)}`;
-
       statusEl.classList.remove('error');
-      statusEl.textContent = "Email app khul raha hai...";
+      statusEl.textContent = "Sending...";
+      submitBtn.disabled = true;
 
-      window.location.href = mailtoLink;
+      try{
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // avoids CORS preflight
+          body: JSON.stringify({ name, email: fromEmail, message })
+        });
+
+        statusEl.textContent = "Request sent! You'll hear back soon.";
+        form.reset();
+      } catch(err){
+        statusEl.classList.add('error');
+        statusEl.textContent = "Something went wrong, please try again.";
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+      }
     });
   })();
 </script>
