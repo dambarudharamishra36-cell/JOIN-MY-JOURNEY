@@ -537,47 +537,22 @@
       <span class="join-email">dambarudharamishra7@gmail.com</span>
     </div>
 
-    <form class="join-form"
-      action="https://api.web3forms.com/submit"
-      method="POST">
-
-  <input type="hidden" name="access_key"
-         value="05b7b044-a078-4e23-809b-d7a79b3c4d3c">
-
-  <input type="hidden" name="redirect"
-         value="https://dambarudharamishra36-cell.github.io/JOIN-MY-JOURNEY/thankyou.html">
-
-  <div class="field">
-    <label>Your Name</label>
-    <input type="text" name="name" required>
-  </div>
-
-  <div class="field">
-    <label>Email Address</label>
-    <input type="email" name="email" required>
-  </div>
-
-  <div class="field">
-    <label>Message</label>
-    <textarea name="message" rows="5" required></textarea>
-  </div>
-
-  <button type="submit" class="btn btn-join">
-    Join My Journey
-  </button>
-
-</form>
-    <!DOCTYPE html>
-<html>
-<head>
-<title>Thank You</title>
-</head>
-<body style="background:#0e0b09;color:white;text-align:center;padding-top:100px;font-family:Arial;">
-<h1>🎉 Thank You!</h1>
-<p>Your request has been sent successfully.</p>
-<a href="index.html">Back to Home</a>
-</body>
-</html>
+    <form class="join-form" id="joinForm">
+      <div class="field">
+        <label for="joinName">Your Name</label>
+        <input type="text" id="joinName" name="name" placeholder="e.g. Rahul Sharma" required>
+      </div>
+      <div class="field">
+        <label for="joinEmail">Your Email</label>
+        <input type="email" id="joinEmail" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="joinMsg">Message</label>
+        <textarea id="joinMsg" name="message" rows="4" placeholder="I'd like to join / collaborate with you because..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-join">JOIN →</button>
+      <div class="join-status" id="joinStatus"></div>
+    </form>
   </div>
 </section>
 
